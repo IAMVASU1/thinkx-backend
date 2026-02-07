@@ -63,3 +63,44 @@ export const getAllDonations = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+/* ===============================
+   DONATION STATS
+================================ */
+export const getDonationStats = async (req, res) => {
+  try {
+    const totalDonations = await Donation.countDocuments();
+    const totalAmount = await Donation.aggregate([
+      { $group: { _id: null, total: { $sum: '$amount' } } }
+    ]);
+
+    res.status(200).json({
+      success: true,
+      stats: {
+        totalDonations,
+        totalAmount: totalAmount[0]?.total || 0
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/* ===============================
+   GET DONATIONS BY INITIATIVE
+================================ */
+export const getDonationsByInitiative = async (req, res) => {
+  try {
+    const { initiative } = req.params;
+    const donations = await Donation.find({ purpose: initiative })
+      .populate('donor', 'name email');
+
+    res.status(200).json({
+      success: true,
+      count: donations.length,
+      donations
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

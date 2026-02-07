@@ -4,7 +4,9 @@ import { Router } from 'express';
 import {
   upsertProfile,
   getMyProfile,
-  getAlumniDirectory
+  getAlumniDirectory,
+  getAlumniStats,
+  getAlumniActivities
 } from '../controllers/alumni.controller.js';
 
 import { postJob } from '../controllers/job.controller.js';
@@ -23,6 +25,24 @@ import { validateEvent } from '../validations/event.validation.js';
 import { validateDonation } from '../validations/donation.validation.js';
 
 const router = Router();
+
+/* ===============================
+   ALUMNI STATS
+================================ */
+router.get(
+  '/stats',
+  authMiddleware,
+  getAlumniStats
+);
+
+/* ===============================
+   ALUMNI ACTIVITIES
+================================ */
+router.get(
+  '/activities',
+  authMiddleware,
+  getAlumniActivities
+);
 
 /* ===============================
    ALUMNI PROFILE

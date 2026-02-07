@@ -13,6 +13,7 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
+    console.log("hehe");
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).json({ message: 'User already exists' });
@@ -26,6 +27,9 @@ export const register = async (req, res) => {
       password: hashedPassword,
       role
     });
+
+    console.log(user);
+    
 
     res.status(201).json({
       success: true,
@@ -48,7 +52,9 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-
+    console.log(email);
+    console.log(password);
+    
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password required' });
     }
@@ -57,6 +63,8 @@ export const login = async (req, res) => {
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
+    console.log(user);
+    
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
@@ -78,6 +86,26 @@ export const login = async (req, res) => {
         email: user.email,
         role: user.role
       }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/* ===============================
+   GET PROFILE
+================================ */
+export const getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({
+      success: true,
+      user
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

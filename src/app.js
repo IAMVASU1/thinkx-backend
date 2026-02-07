@@ -22,7 +22,27 @@ const app = express();
 /* ===============================
    GLOBAL MIDDLEWARES
 ================================ */
-app.use(cors());
+// CORS configuration with explicit origins and credentials support
+const corsOptions = {
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:8081',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:8081',
+    'http://10.162.253.112:5000',
+    'http://10.162.253.112:3000',
+    'http://10.162.253.112:8081',
+    'exp://localhost:8081',
+    'exp://10.162.253.112:8081',
+    '*'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'authorization'],
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -30,10 +50,11 @@ app.use(express.urlencoded({ extended: true }));
    HEALTH CHECK
 ================================ */
 app.get('/', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Alumni Association API is running 🚀'
-  });
+   console.log('Health check endpoint hit!');
+   res.status(200).json({
+      success: true,
+      message: 'Alumni Association API is running 🚀'
+   });
 });
 
 /* ===============================

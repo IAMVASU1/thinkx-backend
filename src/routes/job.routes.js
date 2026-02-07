@@ -2,7 +2,12 @@ import { Router } from 'express';
 import {
   postJob,
   getJobs,
-  applyForJob
+  getJobById,
+  getMyJobs,
+  updateJob,
+  deleteJob,
+  applyForJob,
+  getJobApplications
 } from '../controllers/job.controller.js';
 
 import authMiddleware from '../middlewares/auth.middleware.js';
@@ -32,6 +37,44 @@ router.get(
 );
 
 /* ===============================
+   GET MY JOBS
+================================ */
+router.get(
+  '/my-jobs',
+  authMiddleware,
+  getMyJobs
+);
+
+/* ===============================
+   GET JOB BY ID
+================================ */
+router.get(
+  '/:id',
+  authMiddleware,
+  getJobById
+);
+
+/* ===============================
+   UPDATE JOB
+================================ */
+router.put(
+  '/:id',
+  authMiddleware,
+  roleMiddleware('ALUMNI', 'ADMIN'),
+  updateJob
+);
+
+/* ===============================
+   DELETE JOB
+================================ */
+router.delete(
+  '/:id',
+  authMiddleware,
+  roleMiddleware('ALUMNI', 'ADMIN'),
+  deleteJob
+);
+
+/* ===============================
    APPLY FOR JOB
 ================================ */
 router.post(
@@ -39,6 +82,15 @@ router.post(
   authMiddleware,
   roleMiddleware('STUDENT', 'ALUMNI'),
   applyForJob
+);
+
+/* ===============================
+   GET JOB APPLICATIONS
+================================ */
+router.get(
+  '/:id/applications',
+  authMiddleware,
+  getJobApplications
 );
 
 export default router;

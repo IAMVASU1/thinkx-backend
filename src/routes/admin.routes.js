@@ -2,7 +2,12 @@ import { Router } from 'express';
 import {
   getDashboardStats,
   approveSuccessStory,
-  getAllUsers
+  getAllUsers,
+  getActivityLog,
+  getReports,
+  getModerationQueue,
+  approveModerationItem,
+  rejectModerationItem
 } from '../controllers/admin.controller.js';
 
 import { getAllDonations } from '../controllers/donation.controller.js';
@@ -14,13 +19,33 @@ import roleMiddleware from '../middlewares/role.middleware.js';
 const router = Router();
 
 /* ===============================
-   DASHBOARD
+   DASHBOARD STATS
 ================================ */
 router.get(
-  '/dashboard',
+  '/dashboard/stats',
   authMiddleware,
   roleMiddleware('ADMIN'),
   getDashboardStats
+);
+
+/* ===============================
+   ACTIVITY LOG
+================================ */
+router.get(
+  '/activity-log',
+  authMiddleware,
+  roleMiddleware('ADMIN'),
+  getActivityLog
+);
+
+/* ===============================
+   REPORTS
+================================ */
+router.get(
+  '/reports',
+  authMiddleware,
+  roleMiddleware('ADMIN'),
+  getReports
 );
 
 /* ===============================
@@ -31,6 +56,36 @@ router.get(
   authMiddleware,
   roleMiddleware('ADMIN'),
   getAllUsers
+);
+
+/* ===============================
+   MODERATION QUEUE
+================================ */
+router.get(
+  '/moderation/queue',
+  authMiddleware,
+  roleMiddleware('ADMIN'),
+  getModerationQueue
+);
+
+/* ===============================
+   APPROVE MODERATION ITEM
+================================ */
+router.post(
+  '/moderation/:itemId/approve',
+  authMiddleware,
+  roleMiddleware('ADMIN'),
+  approveModerationItem
+);
+
+/* ===============================
+   REJECT MODERATION ITEM
+================================ */
+router.post(
+  '/moderation/:itemId/reject',
+  authMiddleware,
+  roleMiddleware('ADMIN'),
+  rejectModerationItem
 );
 
 /* ===============================

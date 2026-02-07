@@ -2,7 +2,9 @@ import { Router } from 'express';
 import {
   createDonation,
   getMyDonations,
-  getAllDonations
+  getAllDonations,
+  getDonationStats,
+  getDonationsByInitiative
 } from '../controllers/donation.controller.js';
 
 import authMiddleware from '../middlewares/auth.middleware.js';
@@ -25,9 +27,27 @@ router.post(
    MY DONATIONS
 ================================ */
 router.get(
-  '/my',
+  '/my-donations',
   authMiddleware,
   getMyDonations
+);
+
+/* ===============================
+   DONATION STATS
+================================ */
+router.get(
+  '/stats',
+  authMiddleware,
+  getDonationStats
+);
+
+/* ===============================
+   GET DONATIONS BY INITIATIVE
+================================ */
+router.get(
+  '/initiative/:initiative',
+  authMiddleware,
+  getDonationsByInitiative
 );
 
 /* ===============================
