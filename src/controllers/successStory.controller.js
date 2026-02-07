@@ -50,8 +50,9 @@ export const submitSuccessStory = async (req, res) => {
 ================================ */
 export const getApprovedStories = async (req, res) => {
   try {
-    const stories = await SuccessStory.find({ approved: true })
-      .populate('alumni', 'name email');
+    const stories = await SuccessStory.find()
+      .populate('alumni', 'name email')
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
@@ -160,6 +161,32 @@ export const deleteStory = async (req, res) => {
 
     await SuccessStory.findByIdAndDelete(req.params.id);
 
+    res.status(200).json({
+      success: true,
+      message: 'Story deleted successfully'
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/* ===============================
+   ADMIN DELETE STORY
+================================ */
+export const adminDeleteStory = async (req, res) => {
+  try {
+    const story = await SuccessStory.findById(req.params.id);
+    if (!story) {
+      return res.status(404).json({ message: 'Story not found' });
+    }
+    if (story.image && story.image.path) {
+      try {
+        await deleteImage(story.image.path);
+      } catch (error) {
+        console.error('Error deleting image:', error);
+      }
+    }
+    await SuccessStory.findByIdAndDelete(req.params.id);
     res.status(200).json({
       success: true,
       message: 'Story deleted successfully'
