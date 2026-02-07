@@ -1,48 +1,34 @@
 import Donation from '../models/Donation.model.js';
-import processPayment from '../services/payment.service.js';
- 
 
 /* ===============================
-   CREATE DONATION
+   NOTE: Donation creation is now handled via 
+   Payment Controller (create-order + verify flow)
 ================================ */
-export const createDonation = async (req, res) => {
-  try {
-    const { amount, purpose, paymentId } = req.body;
-
-    if (!amount || !purpose) {
-      return res.status(400).json({ message: 'Amount and purpose required' });
-    }
-
-    const donation = await Donation.create({
-      donor: req.user.id,
-      amount,
-      purpose,
-      paymentId,
-      paymentStatus: 'SUCCESS'
-    });
-
-    res.status(201).json({
-      success: true,
-      donation
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
 
 /* ===============================
    MY DONATIONS
 ================================ */
 export const getMyDonations = async (req, res) => {
   try {
-    const donations = await Donation.find({ donor: req.user.id });
+    // Only show successful donations
+    const donations = await Donation.find({ 
+      donor: req.user.id,
+      paymentStatus: 'SUCCESS'
+    }).sort({ createdAt: -1 });
+
+    const totalDonated = donations.reduce((sum, donation) => sum + donation.amount, 0);
 
     res.status(200).json({
       success: true,
+      count: donations.length,
+      totalDonated,
       donations
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ 
+      success: false,
+      message: error.message 
+    });
   }
 };
 
@@ -51,16 +37,28 @@ export const getMyDonations = async (req, res) => {
 ================================ */
 export const getAllDonations = async (req, res) => {
   try {
-    const donations = await Donation.find()
-      .populate('donor', 'name email');
+    const { status } = req.query;
+    
+    // Filter by status if provided, otherwise show only successful
+    const filter = status ? { paymentStatus: status.toUpperCase() } : { paymentStatus: 'SUCCESS' };
+    
+    const donations = await Donation.find(filter)
+      .populate('donor', 'name email')
+      .sort({ createdAt: -1 });
+
+    const totalAmount = donations.reduce((sum, donation) => sum + donation.amount, 0);
 
     res.status(200).json({
       success: true,
       count: donations.length,
+      totalAmount,
       donations
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ 
+      success: false,
+      message: error.message 
+    });
   }
 };
 
@@ -69,20 +67,31 @@ export const getAllDonations = async (req, res) => {
 ================================ */
 export const getDonationStats = async (req, res) => {
   try {
-    const totalDonations = await Donation.countDocuments();
+    // Only count successful donations
+    const totalDonations = await Donation.countDocuments({ paymentStatus: 'SUCCESS' });
     const totalAmount = await Donation.aggregate([
+      { $match: { paymentStatus: 'SUCCESS' } },
       { $group: { _id: null, total: { $sum: '$amount' } } }
+    ]);
+
+    // Get donations by status
+    const statusBreakdown = await Donation.aggregate([
+      { $group: { _id: '$paymentStatus', count: { $sum: 1 }, total: { $sum: '$amount' } } }
     ]);
 
     res.status(200).json({
       success: true,
       stats: {
         totalDonations,
-        totalAmount: totalAmount[0]?.total || 0
+        totalAmount: totalAmount[0]?.total || 0,
+        statusBreakdown
       }
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ 
+      success: false,
+      message: error.message 
+    });
   }
 };
 

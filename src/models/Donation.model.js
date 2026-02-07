@@ -18,13 +18,28 @@ const donationSchema = new mongoose.Schema(
       required: true
     },
 
-    paymentId: String,
+    // Razorpay Payment Details
+    razorpayOrderId: {
+      type: String,
+      required: true
+    },
+
+    razorpayPaymentId: {
+      type: String
+    },
+
+    razorpaySignature: {
+      type: String
+    },
 
     paymentStatus: {
       type: String,
       enum: ['PENDING', 'SUCCESS', 'FAILED'],
-      default: 'SUCCESS'
-    }
+      default: 'PENDING'
+    },
+
+    // Legacy field for backward compatibility
+    paymentId: String
   },
   { timestamps: true }
 );

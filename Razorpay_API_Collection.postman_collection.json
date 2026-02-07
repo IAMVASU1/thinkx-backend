@@ -1,0 +1,257 @@
+{
+  "info": {
+    "name": "Razorpay Payment Gateway - Alumni Association",
+    "description": "Complete API collection for testing Razorpay payment integration",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            ""
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Razorpay Key",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/api/payment/key",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "api",
+            "payment",
+            "key"
+          ]
+        },
+        "description": "Public endpoint - Get Razorpay Key ID for frontend"
+      }
+    },
+    {
+      "name": "Create Order",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{JWT_TOKEN}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 1000,\n  \"purpose\": \"Annual Fund 2024\"\n}"
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/api/payment/create-order",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "api",
+            "payment",
+            "create-order"
+          ]
+        },
+        "description": "Create a Razorpay order for donation"
+      }
+    },
+    {
+      "name": "Verify Payment",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{JWT_TOKEN}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"razorpay_order_id\": \"order_xxxxxxxxxxxxx\",\n  \"razorpay_payment_id\": \"pay_xxxxxxxxxxxxx\",\n  \"razorpay_signature\": \"signature_hash_here\",\n  \"donationId\": \"65f123abc456def789012345\"\n}"
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/api/payment/verify",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "api",
+            "payment",
+            "verify"
+          ]
+        },
+        "description": "Verify Razorpay payment signature"
+      }
+    },
+    {
+      "name": "Get Payment Details",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{JWT_TOKEN}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{BASE_URL}}/api/payment/details/pay_xxxxxxxxxxxxx",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "api",
+            "payment",
+            "details",
+            "pay_xxxxxxxxxxxxx"
+          ]
+        },
+        "description": "Get payment details from Razorpay (for debugging)"
+      }
+    },
+    {
+      "name": "Get My Donations",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{JWT_TOKEN}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{BASE_URL}}/api/donations/my-donations",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "api",
+            "donations",
+            "my-donations"
+          ]
+        },
+        "description": "Get all donations made by logged-in user"
+      }
+    },
+    {
+      "name": "Get All Donations (Admin)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{JWT_TOKEN}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{BASE_URL}}/api/donations?status=SUCCESS",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "api",
+            "donations"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "SUCCESS",
+              "description": "Filter by status: SUCCESS, PENDING, or FAILED"
+            }
+          ]
+        },
+        "description": "Admin only - Get all donations with optional status filter"
+      }
+    },
+    {
+      "name": "Get Donation Stats",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{JWT_TOKEN}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{BASE_URL}}/api/donations/stats",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "api",
+            "donations",
+            "stats"
+          ]
+        },
+        "description": "Get donation statistics and analytics"
+      }
+    },
+    {
+      "name": "Get Donations by Initiative",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{JWT_TOKEN}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{BASE_URL}}/api/donations/initiative/Annual Fund 2024",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "api",
+            "donations",
+            "initiative",
+            "Annual Fund 2024"
+          ]
+        },
+        "description": "Get all donations for a specific initiative/purpose"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "JWT_TOKEN",
+      "value": "your_jwt_token_here",
+      "type": "string"
+    }
+  ]
+}

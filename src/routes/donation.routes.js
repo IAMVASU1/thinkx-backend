@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import {
-  createDonation,
   getMyDonations,
   getAllDonations,
   getDonationStats,
@@ -9,19 +8,13 @@ import {
 
 import authMiddleware from '../middlewares/auth.middleware.js';
 import roleMiddleware from '../middlewares/role.middleware.js';
-import { validateDonation } from '../validations/donation.validation.js';
 
 const router = Router();
 
 /* ===============================
-   CREATE DONATION
+   NOTE: Donation creation is now handled via 
+   /api/payment/create-order and /api/payment/verify
 ================================ */
-router.post(
-  '/',
-  authMiddleware,
-  validateDonation,
-  createDonation
-);
 
 /* ===============================
    MY DONATIONS

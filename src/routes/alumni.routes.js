@@ -11,7 +11,6 @@ import {
 
 import { postJob } from '../controllers/job.controller.js';
 import { createEvent } from '../controllers/event.controller.js';
-import { createDonation } from '../controllers/donation.controller.js';
 import { submitSuccessStory } from '../controllers/successStory.controller.js';
 import { submitFeedback } from '../controllers/feedback.controller.js';
 
@@ -22,7 +21,6 @@ import roleMiddleware from '../middlewares/role.middleware.js';
 /* Validations */
 import { validateJob } from '../validations/job.validation.js';
 import { validateEvent } from '../validations/event.validation.js';
-import { validateDonation } from '../validations/donation.validation.js';
 
 const router = Router();
 
@@ -94,14 +92,10 @@ router.post(
 
 /* ===============================
    DONATIONS
+   Note: Donations are now handled via Payment Gateway
+   Use: POST /api/payment/create-order
+   Then: POST /api/payment/verify
 ================================ */
-router.post(
-  '/donations',
-  authMiddleware,
-  roleMiddleware('ALUMNI'),
-  validateDonation,
-  createDonation
-);
 
 /* ===============================
    SUCCESS STORIES

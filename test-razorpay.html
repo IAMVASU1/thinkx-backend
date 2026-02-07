@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Razorpay Integration</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .config-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .config-section small {
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .test-cards {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 10px;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .test-cards h3 {
+            font-size: 14px;
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .test-cards ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .test-cards li {
+            color: #856404;
+            font-size: 13px;
+            padding: 5px 0;
+        }
+        
+        .loader {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💳 Razorpay Test</h1>
+        <p class="subtitle">Alumni Association Donation System</p>
+        
+        <div id="alert-container"></div>
+        
+        <div class="config-section">
+            <label>Backend API URL</label>
+            <input type="text" id="apiUrl" value="http://localhost:5000/api" />
+            <small>Change this if your backend is running on a different port</small>
+        </div>
+        
+        <div class="config-section">
+            <label>JWT Token (for testing)</label>
+            <input type="text" id="jwtToken" placeholder="Paste your JWT token here" />
+            <small>Get this by logging in through your auth endpoint</small>
+        </div>
+        
+        <div class="form-group">
+            <label>Donation Amount (₹)</label>
+            <input type="number" id="amount" value="100" min="1" />
+        </div>
+        
+        <div class="form-group">
+            <label>Purpose</label>
+            <select id="purpose">
+                <option value="Annual Fund 2024">Annual Fund 2024</option>
+                <option value="Scholarship Fund">Scholarship Fund</option>
+                <option value="Infrastructure Development">Infrastructure Development</option>
+                <option value="Student Welfare">Student Welfare</option>
+                <option value="Research Grant">Research Grant</option>
+            </select>
+        </div>
+        
+        <button class="btn" id="donateBtn" onclick="handleDonate()">
+            Donate Now
+        </button>
+        
+        <div class="test-cards">
+            <h3>🧪 Test Cards (Razorpay Test Mode)</h3>
+            <ul>
+                <li><strong>Success:</strong> 4111 1111 1111 1111</li>
+                <li><strong>Success:</strong> 5555 5555 5555 4444</li>
+                <li><strong>Failure:</strong> 4000 0000 0000 0002</li>
+                <li><strong>CVV:</strong> Any 3 digits</li>
+                <li><strong>Expiry:</strong> Any future date</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = () => document.getElementById('apiUrl').value;
+        const JWT_TOKEN = () => document.getElementById('jwtToken').value;
+        
+        function showAlert(message, type = 'info') {
+            const alertContainer = document.getElementById('alert-container');
+            alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+        }
+        
+        function setLoading(isLoading) {
+            const btn = document.getElementById('donateBtn');
+            if (isLoading) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loader"></span> Processing...';
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = 'Donate Now';
+            }
+        }
+        
+        async function handleDonate() {
+            try {
+                const amount = parseInt(document.getElementById('amount').value);
+                const purpose = document.getElementById('purpose').value;
+                const token = JWT_TOKEN();
+                
+                if (!token) {
+                    showAlert('❌ Please enter your JWT token first!', 'error');
+                    return;
+                }
+                
+                if (!amount || amount < 1) {
+                    showAlert('❌ Please enter a valid amount!', 'error');
+                    return;
+                }
+                
+                setLoading(true);
+                showAlert('🔄 Creating order...', 'info');
+                
+                // Step 1: Get Razorpay Key
+                const keyResponse = await fetch(`${API_BASE_URL()}/payment/key`);
+                const keyData = await keyResponse.json();
+                
+                if (!keyData.success) {
+                    throw new Error('Failed to get Razorpay key');
+                }
+                
+                const razorpayKey = keyData.key;
+                
+                // Step 2: Create Order
+                const orderResponse = await fetch(`${API_BASE_URL()}/payment/create-order`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ amount, purpose })
+                });
+                
+                const orderData = await orderResponse.json();
+                
+                if (!orderData.success) {
+                    throw new Error(orderData.message || 'Failed to create order');
+                }
+                
+                const { orderId, amount: orderAmount, donationId } = orderData.order;
+                
+                showAlert('✅ Order created! Opening Razorpay...', 'success');
+                
+                // Step 3: Open Razorpay Checkout
+                const options = {
+                    key: razorpayKey,
+                    amount: orderAmount,
+                    currency: 'INR',
+                    name: 'Alumni Association',
+                    description: purpose,
+                    order_id: orderId,
+                    handler: async function (response) {
+                        // Step 4: Verify Payment
+                        try {
+                            showAlert('🔄 Verifying payment...', 'info');
+                            
+                            const verifyResponse = await fetch(`${API_BASE_URL()}/payment/verify`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: JSON.stringify({
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature,
+                                    donationId: donationId
+                                })
+                            });
+                            
+                            const verifyData = await verifyResponse.json();
+                            
+                            if (verifyData.success) {
+                                showAlert('✅ Payment Successful! Thank you for your donation! 🎉', 'success');
+                                console.log('Donation Details:', verifyData.donation);
+                            } else {
+                                showAlert('❌ Payment verification failed!', 'error');
+                            }
+                        } catch (error) {
+                            console.error('Verification error:', error);
+                            showAlert('❌ Payment verification failed!', 'error');
+                        } finally {
+                            setLoading(false);
+                        }
+                    },
+                    prefill: {
+                        name: 'Test User',
+                        email: 'test@example.com',
+                        contact: '9999999999'
+                    },
+                    theme: {
+                        color: '#667eea'
+                    },
+                    modal: {
+                        ondismiss: function() {
+                            setLoading(false);
+                            showAlert('⚠️ Payment cancelled', 'info');
+                        }
+                    }
+                };
+                
+                const razorpay = new Razorpay(options);
+                razorpay.open();
+                
+                razorpay.on('payment.failed', function (response) {
+                    setLoading(false);
+                    showAlert(`❌ Payment Failed: ${response.error.description}`, 'error');
+                    console.error('Payment failed:', response.error);
+                });
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert(`❌ Error: ${error.message}`, 'error');
+                setLoading(false);
+            }
+        }
+    </script>
+</body>
+</html>
