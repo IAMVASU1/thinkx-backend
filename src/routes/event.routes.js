@@ -14,6 +14,7 @@ import {
 import authMiddleware from '../middlewares/auth.middleware.js';
 import roleMiddleware from '../middlewares/role.middleware.js';
 import { validateEvent } from '../validations/event.validation.js';
+import { uploadSingle } from '../middlewares/upload.middleware.js';
 
 const router = Router();
 
@@ -24,6 +25,7 @@ router.post(
   '/',
   authMiddleware,
   roleMiddleware('ALUMNI', 'ADMIN'),
+  uploadSingle('image'),
   validateEvent,
   createEvent
 );
@@ -62,6 +64,7 @@ router.put(
   '/:id',
   authMiddleware,
   roleMiddleware('ALUMNI', 'ADMIN'),
+  uploadSingle('image'),
   updateEvent
 );
 

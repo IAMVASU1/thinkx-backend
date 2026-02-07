@@ -16,6 +16,17 @@ const eventSchema = new mongoose.Schema(
 
     location: String,
 
+    image: {
+      url: {
+        type: String,
+        default: null
+      },
+      path: {
+        type: String,
+        default: null
+      }
+    },
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

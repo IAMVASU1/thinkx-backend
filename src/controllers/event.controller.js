@@ -1,5 +1,6 @@
 import Event from '../models/Event.model.js';
 import sendNotification from '../services/notification.service.js';
+import { uploadImage, deleteImage } from '../services/upload.service.js';
 
 
 /* ===============================
@@ -13,13 +14,31 @@ export const createEvent = async (req, res) => {
       return res.status(400).json({ message: 'Title and date required' });
     }
 
-    const event = await Event.create({
+    const eventData = {
       title,
       description,
       date,
       location,
       createdBy: req.user.id
-    });
+    };
+
+    // Handle image upload if file is provided
+    if (req.file) {
+      try {
+        const uploadResult = await uploadImage(req.file, 'events');
+        eventData.image = {
+          url: uploadResult.url,
+          path: uploadResult.path
+        };
+      } catch (uploadError) {
+        return res.status(400).json({ 
+          success: false,
+          message: `Image upload failed: ${uploadError.message}` 
+        });
+      }
+    }
+
+    const event = await Event.create(eventData);
 
     res.status(201).json({
       success: true,
@@ -115,7 +134,31 @@ export const updateEvent = async (req, res) => {
       return res.status(403).json({ message: 'Unauthorized to update this event' });
     }
 
-    const updated = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updateData = { ...req.body };
+
+    // Handle image upload if new file is provided
+    if (req.file) {
+      try {
+        // Delete old image if exists
+        if (event.image && event.image.path) {
+          await deleteImage(event.image.path);
+        }
+
+        // Upload new image
+        const uploadResult = await uploadImage(req.file, 'events');
+        updateData.image = {
+          url: uploadResult.url,
+          path: uploadResult.path
+        };
+      } catch (uploadError) {
+        return res.status(400).json({ 
+          success: false,
+          message: `Image upload failed: ${uploadError.message}` 
+        });
+      }
+    }
+
+    const updated = await Event.findByIdAndUpdate(req.params.id, updateData, { new: true });
 
     res.status(200).json({
       success: true,
@@ -139,6 +182,16 @@ export const deleteEvent = async (req, res) => {
 
     if (event.createdBy.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Unauthorized to delete this event' });
+    }
+
+    // Delete image from storage if exists
+    if (event.image && event.image.path) {
+      try {
+        await deleteImage(event.image.path);
+      } catch (error) {
+        console.error('Error deleting image:', error);
+        // Continue with event deletion even if image deletion fails
+      }
     }
 
     await Event.findByIdAndDelete(req.params.id);

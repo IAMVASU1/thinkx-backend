@@ -18,6 +18,17 @@ const successStorySchema = new mongoose.Schema(
       required: true
     },
 
+    image: {
+      url: {
+        type: String,
+        default: null
+      },
+      path: {
+        type: String,
+        default: null
+      }
+    },
+
     approved: {
       type: Boolean,
       default: false

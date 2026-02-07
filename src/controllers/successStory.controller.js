@@ -1,4 +1,5 @@
 import SuccessStory from '../models/SuccessStory.model.js';
+import { uploadImage, deleteImage } from '../services/upload.service.js';
 
 /* ===============================
    SUBMIT SUCCESS STORY
@@ -11,11 +12,29 @@ export const submitSuccessStory = async (req, res) => {
       return res.status(400).json({ message: 'Title and story required' });
     }
 
-    const successStory = await SuccessStory.create({
+    const storyData = {
       alumni: req.user.id,
       title,
       story
-    });
+    };
+
+    // Handle image upload if file is provided
+    if (req.file) {
+      try {
+        const uploadResult = await uploadImage(req.file, 'success-stories');
+        storyData.image = {
+          url: uploadResult.url,
+          path: uploadResult.path
+        };
+      } catch (uploadError) {
+        return res.status(400).json({ 
+          success: false,
+          message: `Image upload failed: ${uploadError.message}` 
+        });
+      }
+    }
+
+    const successStory = await SuccessStory.create(storyData);
 
     res.status(201).json({
       success: true,
@@ -79,7 +98,31 @@ export const updateStory = async (req, res) => {
       return res.status(403).json({ message: 'Unauthorized to update this story' });
     }
 
-    const updated = await SuccessStory.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updateData = { ...req.body };
+
+    // Handle image upload if new file is provided
+    if (req.file) {
+      try {
+        // Delete old image if exists
+        if (story.image && story.image.path) {
+          await deleteImage(story.image.path);
+        }
+
+        // Upload new image
+        const uploadResult = await uploadImage(req.file, 'success-stories');
+        updateData.image = {
+          url: uploadResult.url,
+          path: uploadResult.path
+        };
+      } catch (uploadError) {
+        return res.status(400).json({ 
+          success: false,
+          message: `Image upload failed: ${uploadError.message}` 
+        });
+      }
+    }
+
+    const updated = await SuccessStory.findByIdAndUpdate(req.params.id, updateData, { new: true });
 
     res.status(200).json({
       success: true,
@@ -103,6 +146,16 @@ export const deleteStory = async (req, res) => {
 
     if (story.alumni.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Unauthorized to delete this story' });
+    }
+
+    // Delete image from storage if exists
+    if (story.image && story.image.path) {
+      try {
+        await deleteImage(story.image.path);
+      } catch (error) {
+        console.error('Error deleting image:', error);
+        // Continue with story deletion even if image deletion fails
+      }
     }
 
     await SuccessStory.findByIdAndDelete(req.params.id);

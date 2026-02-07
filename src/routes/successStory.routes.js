@@ -12,6 +12,7 @@ import {
 
 import authMiddleware from '../middlewares/auth.middleware.js';
 import roleMiddleware from '../middlewares/role.middleware.js';
+import { uploadSingle } from '../middlewares/upload.middleware.js';
 
 const router = Router();
 
@@ -22,6 +23,7 @@ router.post(
   '/',
   authMiddleware,
   roleMiddleware('ALUMNI'),
+  uploadSingle('image'),
   submitSuccessStory
 );
 
@@ -50,6 +52,7 @@ router.put(
   '/:id',
   authMiddleware,
   roleMiddleware('ALUMNI'),
+  uploadSingle('image'),
   updateStory
 );
 

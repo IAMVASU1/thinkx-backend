@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload Test - Success Stories & Events</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e8ed;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 10px;
+            background: #667eea;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            transition: background 0.3s;
+        }
+
+        .file-input-label:hover {
+            background: #5568d3;
+        }
+
+        .file-name {
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .preview {
+            margin-top: 15px;
+            max-width: 100%;
+            border-radius: 5px;
+            display: none;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .response {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .response.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .response.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .note {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #ffeaa7;
+        }
+
+        .note strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Image Upload Test</h1>
+        <p class="subtitle">Test Success Story & Event Image Upload</p>
+
+        <div class="note">
+            <strong>⚠️ Before Testing:</strong>
+            1. Make sure you're logged in and have a valid JWT token<br>
+            2. Update the API_BASE_URL below if needed<br>
+            3. For Success Stories, you need to be an ALUMNI user<br>
+            4. For Events, you need to be an ALUMNI or ADMIN user<br>
+            5. Maximum file size: 5MB<br>
+            6. Supported formats: JPEG, PNG, GIF, WebP
+        </div>
+
+        <!-- Success Story Section -->
+        <div class="section">
+            <h2>📖 Submit Success Story with Image</h2>
+            <form id="successStoryForm">
+                <div class="form-group">
+                    <label for="storyToken">JWT Token:</label>
+                    <input type="text" id="storyToken" placeholder="Enter your JWT token" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="storyTitle">Title:</label>
+                    <input type="text" id="storyTitle" placeholder="Enter success story title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="storyContent">Story:</label>
+                    <textarea id="storyContent" placeholder="Write your success story..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Image (optional):</label>
+                    <div class="file-input-wrapper">
+                        <label class="file-input-label" for="storyImage">
+                            📁 Choose Image
+                        </label>
+                        <input type="file" id="storyImage" accept="image/*">
+                    </div>
+                    <div class="file-name" id="storyFileName"></div>
+                    <img id="storyPreview" class="preview" alt="Preview">
+                </div>
+
+                <button type="submit" id="storySubmitBtn">Submit Success Story</button>
+            </form>
+            <div id="storyResponse" class="response"></div>
+        </div>
+
+        <!-- Event Section -->
+        <div class="section">
+            <h2>📅 Create Event with Image</h2>
+            <form id="eventForm">
+                <div class="form-group">
+                    <label for="eventToken">JWT Token:</label>
+                    <input type="text" id="eventToken" placeholder="Enter your JWT token" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventTitle">Title:</label>
+                    <input type="text" id="eventTitle" placeholder="Enter event title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventDescription">Description:</label>
+                    <textarea id="eventDescription" placeholder="Describe the event..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventDate">Date:</label>
+                    <input type="date" id="eventDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventLocation">Location:</label>
+                    <input type="text" id="eventLocation" placeholder="Enter event location">
+                </div>
+
+                <div class="form-group">
+                    <label>Image (optional):</label>
+                    <div class="file-input-wrapper">
+                        <label class="file-input-label" for="eventImage">
+                            📁 Choose Image
+                        </label>
+                        <input type="file" id="eventImage" accept="image/*">
+                    </div>
+                    <div class="file-name" id="eventFileName"></div>
+                    <img id="eventPreview" class="preview" alt="Preview">
+                </div>
+
+                <button type="submit" id="eventSubmitBtn">Create Event</button>
+            </form>
+            <div id="eventResponse" class="response"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000/api';
+
+        // File preview functionality
+        function setupFilePreview(inputId, previewId, fileNameId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            const fileName = document.getElementById(fileNameId);
+
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    fileName.textContent = `Selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    fileName.textContent = '';
+                    preview.style.display = 'none';
+                }
+            });
+        }
+
+        setupFilePreview('storyImage', 'storyPreview', 'storyFileName');
+        setupFilePreview('eventImage', 'eventPreview', 'eventFileName');
+
+        // Success Story Form
+        document.getElementById('successStoryForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('storySubmitBtn');
+            const responseDiv = document.getElementById('storyResponse');
+            const token = document.getElementById('storyToken').value;
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            responseDiv.style.display = 'none';
+            
+            const formData = new FormData();
+            formData.append('title', document.getElementById('storyTitle').value);
+            formData.append('story', document.getElementById('storyContent').value);
+            
+            const imageFile = document.getElementById('storyImage').files[0];
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/success-stories`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    responseDiv.className = 'response success';
+                    responseDiv.innerHTML = `
+                        <strong>✅ Success!</strong><br>
+                        Story ID: ${data.successStory._id}<br>
+                        ${data.successStory.image?.url ? `Image URL: <a href="${data.successStory.image.url}" target="_blank">${data.successStory.image.url}</a>` : 'No image uploaded'}
+                    `;
+                    document.getElementById('successStoryForm').reset();
+                    document.getElementById('storyPreview').style.display = 'none';
+                    document.getElementById('storyFileName').textContent = '';
+                } else {
+                    responseDiv.className = 'response error';
+                    responseDiv.innerHTML = `<strong>❌ Error:</strong> ${data.message || 'Failed to submit story'}`;
+                }
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.innerHTML = `<strong>❌ Error:</strong> ${error.message}`;
+            }
+            
+            responseDiv.style.display = 'block';
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Success Story';
+        });
+
+        // Event Form
+        document.getElementById('eventForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('eventSubmitBtn');
+            const responseDiv = document.getElementById('eventResponse');
+            const token = document.getElementById('eventToken').value;
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating...';
+            responseDiv.style.display = 'none';
+            
+            const formData = new FormData();
+            formData.append('title', document.getElementById('eventTitle').value);
+            formData.append('description', document.getElementById('eventDescription').value);
+            formData.append('date', document.getElementById('eventDate').value);
+            formData.append('location', document.getElementById('eventLocation').value);
+            
+            const imageFile = document.getElementById('eventImage').files[0];
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/events`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    responseDiv.className = 'response success';
+                    responseDiv.innerHTML = `
+                        <strong>✅ Success!</strong><br>
+                        Event ID: ${data.event._id}<br>
+                        ${data.event.image?.url ? `Image URL: <a href="${data.event.image.url}" target="_blank">${data.event.image.url}</a>` : 'No image uploaded'}
+                    `;
+                    document.getElementById('eventForm').reset();
+                    document.getElementById('eventPreview').style.display = 'none';
+                    document.getElementById('eventFileName').textContent = '';
+                } else {
+                    responseDiv.className = 'response error';
+                    responseDiv.innerHTML = `<strong>❌ Error:</strong> ${data.message || 'Failed to create event'}`;
+                }
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.innerHTML = `<strong>❌ Error:</strong> ${error.message}`;
+            }
+            
+            responseDiv.style.display = 'block';
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Create Event';
+        });
+    </script>
+</body>
+</html>
