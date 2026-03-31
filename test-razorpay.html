@@ -269,6 +269,11 @@
                 
                 // Step 1: Get Razorpay Key
                 const keyResponse = await fetch(`${API_BASE_URL()}/payment/key`);
+                
+                if (!keyResponse.ok) {
+                    throw new Error(`Failed to get Razorpay key. Status: ${keyResponse.status}. Make sure server is running on ${API_BASE_URL()}`);
+                }
+                
                 const keyData = await keyResponse.json();
                 
                 if (!keyData.success) {
@@ -287,13 +292,20 @@
                     body: JSON.stringify({ amount, purpose })
                 });
                 
+                if (!orderResponse.ok) {
+                    const errorText = await orderResponse.text();
+                    console.error('Order creation failed:', errorText);
+                    throw new Error(`Failed to create order. Status: ${orderResponse.status}`);
+                }
+                
                 const orderData = await orderResponse.json();
                 
                 if (!orderData.success) {
                     throw new Error(orderData.message || 'Failed to create order');
                 }
                 
-                const { orderId, amount: orderAmount, donationId } = orderData.order;
+                // FIX: Response is in orderData.data, not orderData.order
+                const { orderId, amount: orderAmount, donationId } = orderData.data;
                 
                 showAlert('✅ Order created! Opening Razorpay...', 'success');
                 

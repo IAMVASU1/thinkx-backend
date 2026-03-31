@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Alumni Chatbot API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .note {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ffeaa7;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .response-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .response-section.show {
+            display: block;
+        }
+
+        .response-header {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .response-content {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            line-height: 1.6;
+        }
+
+        .response-meta {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .success {
+            border-left-color: #28a745;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loader.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Alumni Chatbot Test</h1>
+        <p class="subtitle">Test the chatbot API with your questions</p>
+
+        <div class="note">
+            <strong>📝 Instructions:</strong><br>
+            1. Make sure the chatbot server is running on the specified API URL<br>
+            2. You need a valid user ID from your database<br>
+            3. The chatbot uses Ollama (local AI) - make sure Ollama is running<br>
+            4. Ask questions about jobs, events, alumni, or general queries
+        </div>
+
+        <form id="chatForm">
+            <div class="form-group">
+                <label for="apiUrl">API Base URL:</label>
+                <input type="text" id="apiUrl" value="http://localhost:5001/api" required>
+            </div>
+
+            <div class="form-group">
+                <label for="userId">User ID:</label>
+                <input type="text" id="userId" placeholder="Enter your MongoDB User ID" required>
+            </div>
+
+            <div class="form-group">
+                <label for="message">Your Question:</label>
+                <textarea id="message" placeholder="Ask me anything about jobs, events, alumni connections, etc." required></textarea>
+            </div>
+
+            <button type="submit" id="submitBtn">Send Message 💬</button>
+        </form>
+
+        <div class="loader" id="loader">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #666;">Generating response...</p>
+        </div>
+
+        <div class="response-section" id="responseSection">
+            <div class="response-header">🤖 Chatbot Response:</div>
+            <div class="response-content" id="responseContent"></div>
+            <div class="response-meta" id="responseMeta"></div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('chatForm');
+        const loader = document.getElementById('loader');
+        const responseSection = document.getElementById('responseSection');
+        const responseContent = document.getElementById('responseContent');
+        const responseMeta = document.getElementById('responseMeta');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const apiUrl = document.getElementById('apiUrl').value;
+            const userId = document.getElementById('userId').value;
+            const message = document.getElementById('message').value;
+
+            // Show loader, hide previous response
+            loader.classList.add('show');
+            responseSection.classList.remove('show');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Generating...';
+
+            try {
+                const startTime = Date.now();
+
+                const response = await fetch(`${apiUrl}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: userId,
+                        message: message
+                    })
+                });
+
+                const endTime = Date.now();
+                const responseTime = ((endTime - startTime) / 1000).toFixed(2);
+
+                const data = await response.json();
+
+                // Hide loader
+                loader.classList.remove('show');
+
+                // Show response
+                responseSection.classList.add('show');
+                
+                if (response.ok && data.success) {
+                    responseContent.className = 'response-content success';
+                    responseContent.textContent = data.reply || 'No response generated';
+                    
+                    responseMeta.innerHTML = `
+                        <strong>✅ Success</strong><br>
+                        Response Time: ${responseTime}s<br>
+                        ${data.cached ? '💾 From Cache' : '🆕 Fresh Response'}<br>
+                        Status: ${response.status}
+                    `;
+                } else {
+                    responseContent.className = 'response-content error';
+                    responseContent.textContent = data.message || 'Error occurred';
+                    
+                    responseMeta.innerHTML = `
+                        <strong>❌ Error</strong><br>
+                        Status: ${response.status}<br>
+                        ${data.hint ? `Hint: ${data.hint}` : ''}
+                    `;
+                }
+
+            } catch (error) {
+                loader.classList.remove('show');
+                responseSection.classList.add('show');
+                
+                responseContent.className = 'response-content error';
+                responseContent.textContent = error.message;
+                
+                responseMeta.innerHTML = `
+                    <strong>❌ Network Error</strong><br>
+                    Make sure the server is running at ${document.getElementById('apiUrl').value}
+                `;
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send Message 💬';
+            }
+        });
+
+        // Add some example queries
+        const examples = [
+            "What jobs are available?",
+            "Tell me about upcoming events",
+            "Who are the alumni from Computer Science?",
+            "What are the recent success stories?",
+            "How can I connect with alumni in my field?"
+        ];
+
+        console.log('💡 Example questions you can ask:');
+        examples.forEach((ex, i) => console.log(`   ${i + 1}. ${ex}`));
+    </script>
+</body>
+</html>

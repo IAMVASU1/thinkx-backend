@@ -16,9 +16,27 @@ import { getCachedResponse, setCachedResponse, generateCacheKey } from '../utils
 
 export const chat = async (req, res, next) => {
   try {
+    // Debug logging
+    console.log('Request body:', req.body);
+    console.log('Content-Type:', req.headers['content-type']);
+    
+    // Check if body exists
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Request body is empty. Please send JSON data with Content-Type: application/json',
+        hint: 'Body should contain: { "message": "your message", "userId": "user_id" }'
+      });
+    }
+    
     const { message, userId } = req.body;
+    
     if (!message || !userId) {
-      return res.status(400).json({ message: 'message and userId are required' });
+      return res.status(400).json({ 
+        success: false,
+        message: 'message and userId are required',
+        received: { message: !!message, userId: !!userId }
+      });
     }
 
     // Check cache first to reduce API calls

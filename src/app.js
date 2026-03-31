@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 // Routes
 import authRoutes from './routes/auth.routes.js';
@@ -8,6 +10,7 @@ import alumniRoutes from './routes/alumni.routes.js';
 import jobRoutes from './routes/job.routes.js';
 import eventRoutes from './routes/event.routes.js';
 import donationRoutes from './routes/donation.routes.js';
+import paymentRoutes from './routes/payment.routes.js';
 import successStoryRoutes from './routes/successStory.routes.js';
 import feedbackRoutes from './routes/feedback.routes.js';
 import adminRoutes from './routes/admin.routes.js';
@@ -17,25 +20,23 @@ import errorMiddleware from './middlewares/error.middleware.js';
 
 dotenv.config();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
 /* ===============================
    GLOBAL MIDDLEWARES
 ================================ */
-// CORS configuration with explicit origins and credentials support
+// CORS configuration - Allow all origins (development mode)
 const corsOptions = {
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:8081',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:8081',
-    'http://10.162.253.112:5000',
-    'http://10.162.253.112:3000',
-    'http://10.162.253.112:8081',
-    'exp://localhost:8081',
-    'exp://10.162.253.112:8081',
-    '*'
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, Postman, or file://)
+    if (!origin) return callback(null, true);
+    
+    // Allow all origins
+    callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'authorization'],
@@ -47,13 +48,23 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 /* ===============================
+   SERVE STATIC FILES (Test Page)
+================================ */
+app.use('/test', express.static(path.join(__dirname, '..')));
+
+/* ===============================
    HEALTH CHECK
 ================================ */
 app.get('/', (req, res) => {
    console.log('Health check endpoint hit!');
    res.status(200).json({
       success: true,
-      message: 'Alumni Association API is running 🚀'
+      message: 'Alumni Association API is running 🚀',
+      endpoints: {
+         api: '/api',
+         razorpayTest: 'http://localhost:5000/test/test-razorpay.html',
+         docs: '/api/payment/key'
+      }
    });
 });
 
@@ -65,6 +76,7 @@ app.use('/api/alumni', alumniRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/donations', donationRoutes);
+app.use('/api/payment', paymentRoutes);
 app.use('/api/success-stories', successStoryRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/admin', adminRoutes);
