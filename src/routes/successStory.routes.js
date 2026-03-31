@@ -5,6 +5,7 @@ import {
   getStoryById,
   updateStory,
   deleteStory,
+    adminDeleteStory,
   likeStory,
   addComment,
   getComments
@@ -64,6 +65,16 @@ router.delete(
   authMiddleware,
   roleMiddleware('ALUMNI'),
   deleteStory
+);
+
+/* ===============================
+   ADMIN DELETE STORY
+================================ */
+router.delete(
+  '/admin/:id',
+  authMiddleware,
+  roleMiddleware('ADMIN'),
+  adminDeleteStory
 );
 
 /* ===============================
